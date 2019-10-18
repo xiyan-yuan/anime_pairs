@@ -17,8 +17,8 @@ white = (255,255,255)
 clock = pygame.time.Clock()
 crashed = False
 
-image_folder = os.path.join( os.path.abspath('..'), "img")
-back_image = os.path.join( os.path.abspath('..'), "special_img", "back.jpg")
+image_folder = os.path.join( os.path.abspath('.'), "img")
+back_image = os.path.join( os.path.abspath('.'), "special_img", "back.jpg")
 num = 6
 card_number = num * num
 card_type = card_number / 2
@@ -76,14 +76,15 @@ while not crashed:
             crashed = True
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Set the x, y postions of the mouse click
-            x, y = event.pos
-            a = int(x / image_width)
-            b = int(y / image_height)
-            count = num * b + a
-            
-            if cards[count] != "" and (not(len(open_image_count) == 1 and open_image_count[0] == count)):
-                open_image_name.append(images[count])
-                open_image_count.append(count)
+            if len(open_image_count) != 2:
+                x, y = event.pos
+                a = int(x / image_width)
+                b = int(y / image_height)
+                count = num * b + a
+                
+                if cards[count] != "" and (not(len(open_image_count) == 1 and open_image_count[0] == count)):
+                    open_image_name.append(images[count])
+                    open_image_count.append(count)
           
 
     gameDisplay.fill(white)
