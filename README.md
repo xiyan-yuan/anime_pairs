@@ -4,5 +4,5 @@
 A Purble Pairs game
 
 ### reference
-[pygame](https://www.pygame.org/docs/ref/display.html)
-[example](https://pythonprogramming.net/pygame-crashing-objects/)
+[pygame document](https://www.pygame.org/docs/ref/display.html)<br>
+[some base examples](https://pythonprogramming.net/pygame-crashing-objects/)
