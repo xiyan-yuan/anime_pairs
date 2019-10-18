@@ -1,0 +1,2 @@
+https://www.pygame.org/docs/ref/display.html
+https://pythonprogramming.net/pygame-crashing-objects/
