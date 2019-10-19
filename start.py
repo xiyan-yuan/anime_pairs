@@ -20,6 +20,7 @@ card_number = num * num
 card_type = int(card_number / 2)
 image_width = int(game_width / num)
 image_height = int(game_height / num)
+game_timeout = False
 
 gameDisplay = pygame.display.set_mode((display_width, display_height))
 pygame.display.set_caption('anime_pairs')
@@ -61,12 +62,20 @@ def set_card():
     global user_score
     global user_flag
     global current_user_num
+    global game_timeout
+    
     
     # add user
     text = pygame.font.Font("zk.ttf", 30)
     current_user = text.render("当前回合: " + user_name[current_user_num], 1, blue)
+    gameDisplay.blit(current_user, (150, 10))
+    rem_time = 60 *5 - int(pygame.time.get_ticks() / 1000)
+    if rem_time <= 0:
+        rem_time = 0
+        game_timeout = True
+    timer = text.render("时间: " + str(rem_time) + "秒", 1, blue)
+    gameDisplay.blit(timer, (450, 10))
 
-    gameDisplay.blit(current_user, (260, 10))
     user1 = text.render(user_name[0], 1, blue)
     user1_rect = user1.get_rect()
     user1_rect.center = (user_width / 2, user_height / 2)
@@ -84,32 +93,48 @@ def set_card():
     user2_score_rect.center = (display_width - user_width / 2, user_height / 2 + 30)
     gameDisplay.blit(user2_score, user2_score_rect)
 
-
-    # add images
-    for c in open_image_count:
-        cards[c] = images[c]
-
-    site_flag = 0
-    for img in cards:
-        if img != "":            
-            carImg = pygame.image.load(img)
-            small_img = pygame.transform.scale(carImg,(image_width - 5, image_height - 5))
-            gameDisplay.blit(small_img, (user_width + image_width * (site_flag % num), title_height + image_height * int(site_flag / num)))
-        site_flag += 1
-        
-    if len(open_image_count) == 2:
-        
-        if open_image_name[0] == open_image_name[1]:
-            user_score[current_user_num] += 1
-            cards[open_image_count[0]] = ""
-            cards[open_image_count[1]] = ""
+    if game_timeout:
+        if user_score[0] > user_score[1]:
+            winner_text = (user_name[0] + "胜") 
+        elif user_score[0] < user_score[1]:
+            winner_text = (user_name[1] + "胜") 
         else:
-            cards[open_image_count[0]] = back_image
-            cards[open_image_count[1]] = back_image
-        open_image_count = []
-        open_image_name = []
-        user_flag += 1
-        current_user_num = user_flag % user_count
+            winner_text = "平局"
+        winner_info = text.render(winner_text, 1, blue)
+        winner_info_rect = winner_info.get_rect()
+        winner_info_rect.center = (display_width / 2, display_height / 2)
+        gameDisplay.blit(winner_info, winner_info_rect)
+        
+    else:
+        # add images
+        for c in open_image_count:
+            cards[c] = images[c]
+
+        site_flag = 0
+        for img in cards:
+            if img != "":            
+                carImg = pygame.image.load(img)
+                small_img = pygame.transform.scale(carImg,(image_width - 15, image_height - 15))
+                gameDisplay.blit(small_img, (user_width + image_width * (site_flag % num), title_height + image_height * int(site_flag / num)))
+            
+            text2 = pygame.font.Font("zk.ttf", 15)
+            card_number = text2.render(str(site_flag), 1, blue)
+            gameDisplay.blit(card_number, (user_width + image_width * (site_flag % num) + int(image_width / 2), title_height + image_height * (int(site_flag / num) + 1) - 15))
+            site_flag += 1
+            
+        if len(open_image_count) == 2:
+            
+            if open_image_name[0] == open_image_name[1]:
+                user_score[current_user_num] += 1
+                cards[open_image_count[0]] = ""
+                cards[open_image_count[1]] = ""
+            else:
+                cards[open_image_count[0]] = back_image
+                cards[open_image_count[1]] = back_image
+            open_image_count = []
+            open_image_name = []
+            user_flag += 1
+            current_user_num = user_flag % user_count
 
 while not crashed:
     for event in pygame.event.get():
@@ -117,7 +142,7 @@ while not crashed:
             crashed = True
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Set the x, y postions of the mouse click
-            if len(open_image_count) != 2:
+            if (not game_timeout) and len(open_image_count) != 2:
                 x, y = event.pos
                 a = int((x - user_width) / image_width)
                 b = int((y - title_height) / image_height)
