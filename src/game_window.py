@@ -16,7 +16,7 @@ class Game:
         self.current_user_num = 0
         self.num = 6
         self.blue = (72,118,255)
-        self.game_timeout = False
+        self.game_over = False
         
         self.game_window()
     
@@ -68,12 +68,11 @@ class Game:
         self.gameDisplay.blit(self.current_user, (150, 10))
         if self.count_down <= 0:
             self.count_down = 0
-            self.game_timeout = True
+            self.game_over = True
         timer = text.render("时间: " + str(self.count_down) + "秒", 1, self.blue)
         self.gameDisplay.blit(timer, (450, 10))
         
     def update_game(self): 
-        # add user
         text = pygame.font.Font("zk.ttf", 30)
         user1 = text.render(self.user_name[0], 1, self.blue)
         user1_rect = user1.get_rect()
@@ -92,7 +91,7 @@ class Game:
         user2_score_rect.center = (self.display_width - self.user_width / 2, self.user_height / 2 + 30)
         self.gameDisplay.blit(user2_score, user2_score_rect)
 
-        if self.game_timeout:
+        if self.game_over:
             if self.user_score[0] > self.user_score[1]:
                 winner_text = (self.user_name[0] + "胜") 
             elif self.user_score[0] < self.user_score[1]:
@@ -101,11 +100,10 @@ class Game:
                 winner_text = "平局"
             winner_info = text.render(winner_text, 1, self.blue)
             winner_info_rect = winner_info.get_rect()
-            winner_info_rect.center = (self.display_width / 2, display_height / 2)
+            winner_info_rect.center = (self.display_width / 2, self.display_height / 2)
             self.gameDisplay.blit(winner_info, winner_info_rect)
             
         else:
-            # add self.original_images
             for c in self.current_open_image_number:
                 self.actuall_images[c] = self.original_images[c]
 
@@ -121,12 +119,13 @@ class Game:
                 self.gameDisplay.blit(card_number, (self.user_width + self.image_width * (site_flag % self.num) + int(self.image_width / 2), self.title_height + self.image_height * (int(site_flag / self.num) + 1) - 15))
                 site_flag += 1
                 
-            if len(self.current_open_image_number) == 2:
-                
+            if len(self.current_open_image_number) == 2:              
                 if self.actuall_images[self.current_open_image_number[0]] == self.actuall_images[self.current_open_image_number[1]]:
                     self.user_score[self.current_user_num] += 1
                     self.actuall_images[self.current_open_image_number[0]] = ""
                     self.actuall_images[self.current_open_image_number[1]] = ""
+                    if (self.user_score[0] + self.user_score[1]) == int(self.card_number / 2):
+                        self.game_over = True
                 else:
                     self.actuall_images[self.current_open_image_number[0]] = self.back_image
                     self.actuall_images[self.current_open_image_number[1]] = self.back_image
@@ -147,7 +146,7 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     # Set the x, y postions of the mouse click
                     x, y = event.pos
-                    if (not self.game_timeout) and len(self.current_open_image_number) != 2 and 100 < x < 700 and 40 < y < 800:                      
+                    if (not self.game_over) and len(self.current_open_image_number) != 2 and 100 < x < 700 and 40 < y < 800:                      
                         a = int((x - self.user_width) / self.image_width)
                         b = int((y - self.title_height) / self.image_height)
                         count = self.num * b + a
